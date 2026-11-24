@@ -1,0 +1,58 @@
+# psdk_wrapper parameters for a DJI Manifold 3 on Matrice 4E/4T, 4D/4TD or
+# Matrice 400. Requires psdk_ros2 built with -DPSDK_PLATFORM=manifold3 (PSDK
+# >= 3.12) and config/link_config_manifold3.json:
+#
+#   ros2 launch as2_platform_dji_psdk psdk_wrapper.launch.py \
+#     link_config_file_path:=<share>/config/link_config_manifold3.json \
+#     psdk_params_file:=<share>/config/psdk_params_manifold3.yaml
+#
+# On these aircraft every FC subscription topic is capped at 50 Hz and the
+# HARD_SYNC IMU topic does not exist: sensor_measurements/imu (remapped from
+# psdk_ros2/imu) is composed from attitude + raw angular rate + raw
+# acceleration, stamped at reception time. Use it as an attitude reference,
+# not for tightly-coupled VIO.
+/**:
+  ros__parameters:
+    num_of_initialization_retries: 3
+
+    imu_frame: "imu_link"
+    body_frame: "base_link"
+    map_frame: "psdk_map_enu"
+    gimbal_base_frame: "gimbal_base"
+    gimbal_frame: "gimbal"
+    camera_frame: "camera_link"
+    publish_transforms: true
+
+    imu_source: "auto"
+
+    # Inside a box-* container only /workspace survives box-rm
+    file_path: "/workspace/media/"
+
+    mandatory_modules:
+      telemetry: true
+      flight_control: true
+      camera: false
+      gimbal: false
+      liveview: false
+      hms: false
+      perception: false
+
+    # At most 4 distinct rates (1, 5, 10, 50) and 242 bytes per rate.
+    data_frequency:
+      imu: 50
+      attitude: 50
+      acceleration: 50
+      velocity: 50
+      angular_velocity: 50
+      position: 50
+      altitude: 50
+      gps_fused_position: 10
+      gps_data: 1
+      rtk_data: 5
+      magnetometer: 1
+      rc_channels_data: 1
+      gimbal_data: 10
+      flight_status: 10
+      battery_level: 1
+      control_information: 1
+      esc_data_frequency: 1

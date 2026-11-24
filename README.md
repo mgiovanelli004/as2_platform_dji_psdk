@@ -92,6 +92,25 @@ The wrapper's GPS, IMU and main camera topics are remapped to the Aerostack2
 Platform parameters (command and info rates, camera, gimbal, TF timeout) are in
 `config/platform_config_file.yaml`, and each one can also be overridden as a launch argument.
 
+### Matrice 4 series and Matrice 400 (DJI Manifold 3)
+
+> [!WARNING]
+> Build-tested only: not yet tested on a Manifold 3 or aircraft.
+
+On these aircraft, PSDK flight control requires the DJI Manifold 3, which talks to the aircraft
+over USB bulk only. Build `psdk_ros2` (PSDK >= 3.12, e.g. 3.18.0) with
+`-DPSDK_PLATFORM=manifold3`, then launch the wrapper with the Manifold 3 configuration:
+
+```bash
+ros2 launch as2_platform_dji_psdk psdk_wrapper.launch.py namespace:=drone0 \
+  link_config_file_path:=$(ros2 pkg prefix as2_platform_dji_psdk)/share/as2_platform_dji_psdk/config/link_config_manifold3.json \
+  psdk_params_file:=$(ros2 pkg prefix as2_platform_dji_psdk)/share/as2_platform_dji_psdk/config/psdk_params_manifold3.yaml
+```
+
+Telemetry is capped at 50 Hz and `sensor_measurements/imu` is composed from separate topics
+(no `HARD_SYNC` on these aircraft). Without GNSS and vision positioning the aircraft switches to
+ATTI mode, where the velocity commands sent by this platform are not executed.
+
 ## Test
 
 ```bash
